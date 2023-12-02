@@ -170,7 +170,8 @@ class GoodsApi(MethodView):
         data = request.json
         try:
             new_food = Food(
-                fid=str(uuid.uuid4()),
+                # 生成int 但是要求和之前tid不一样
+                fid = Food.query.order_by(Food.fid.desc()).first().fid + 1,
                 tid=data['tid'],
                 fname=data['fname'],
                 fpic=data['fpic'],
@@ -287,7 +288,8 @@ class FTypeApi(MethodView):
         data = request.json
         try:
             new_ftype = FType(
-                tid=str(uuid.uuid4()),
+                # 生成int 但是要求和之前tid不一样
+                tid= FType.query.order_by(FType.tid.desc()).first().tid + 1,
                 tname=data['tname']
             )
             db.session.add(new_ftype)
@@ -324,8 +326,10 @@ class FTypeApi(MethodView):
 
 # 注册路由
 ftype_api = FTypeApi.as_view('ftype_api')
-app.add_url_rule('/type', view_func=ftype_api, methods=['GET', 'POST', 'PUT', 'DELETE'], defaults={'type_id': None})
+app.add_url_rule('/type', view_func=ftype_api, methods=['GET', 'PUT', 'DELETE'], defaults={'type_id': None})
 app.add_url_rule('/type/<int:type_id>', view_func=ftype_api, methods=['GET', 'PUT', 'DELETE'])
+app.add_url_rule('/type', view_func=ftype_api, methods=['POST']) # 单独的 POST 路由，不包含 type_id
+
 app.add_url_rule('/type/all', view_func=ftype_api, methods=['GET'], defaults={'type_id': None})
 
 #####################################################
